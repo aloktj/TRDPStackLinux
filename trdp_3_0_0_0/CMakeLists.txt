@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(TRDPStack C)
 
 option(TRDP_BUILD_EXAMPLES "Build TRDP example applications" OFF)
+option(TRDP_BUILD_TESTS "Build TRDP gtest-based tests" OFF)
 option(TRDP_ENABLE_MD "Enable MD support" ON)
 option(TRDP_FULL_BUILD "Enable full TRDP build (XML/marshalling/etc.)" OFF)
 option(TRDP_ENABLE_SOA "Enable service orientation support" OFF)
@@ -162,4 +163,21 @@ if(TRDP_BUILD_EXAMPLES)
     add_executable(trdp_sourceFiltering "${TRDP_EXAMPLE_DIR}/sourceFilter/sourceFiltering.c")
     target_include_directories(trdp_sourceFiltering PRIVATE "${TRDP_EXAMPLE_DIR}/sourceFilter")
     target_link_libraries(trdp_sourceFiltering PRIVATE trdp)
+endif()
+
+if(TRDP_BUILD_TESTS)
+    include(FetchContent)
+
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/release-1.13.0.zip
+    )
+    FetchContent_MakeAvailable(googletest)
+
+    enable_testing()
+
+    add_executable(trdp_api_gtest "test/gtest/trdp_api_gtest.cpp")
+    target_link_libraries(trdp_api_gtest PRIVATE trdp GTest::gtest_main)
+    add_test(NAME trdp_api_gtest COMMAND trdp_api_gtest)
 endif()
