@@ -79,7 +79,21 @@ target_link_libraries(root_app PRIVATE trdp::trdp)
 - When upgrading TRDPStackLinux, update the submodule commit and rebuild.
 - If your build system uses presets, consider adding a preset for TRDP-enabled builds.
 
-## 7) Optional: Build TRDP tests in the submodule
+## 7) Dependencies and system headers
+
+The CMake target provides required compile definitions and system libraries when you link against
+`trdp::trdp`. If you bypass the target and include headers manually, ensure your build defines the
+same platform macros (notably `POSIX` on Linux) so headers like `vos_sock.h` include the correct
+system headers (e.g. `sys/select.h` for `fd_set`).
+
+Native Linux builds also require pthreads and librt (linked by the target) and can optionally use
+`libuuid` when available. You can install common dependencies via:
+
+```sh
+./scripts/setup-build-env.sh
+```
+
+## 8) Optional: Build TRDP tests in the submodule
 
 If you want to build the TRDPStack tests:
 
@@ -89,8 +103,10 @@ cmake --build build/trdp
 ctest --test-dir build/trdp --output-on-failure
 ```
 
-## 8) Troubleshooting
+## 9) Troubleshooting
 
 - **Headers not found**: verify you linked against `trdp::trdp` (not just `trdp`).
 - **Missing MD APIs**: ensure `TRDP_ENABLE_MD=ON` is set before `add_subdirectory`.
 - **XML/marshalling symbols missing**: set `TRDP_FULL_BUILD=ON` before `add_subdirectory`.
+- **`fd_set`/`select` types not found**: ensure your consumer target defines `POSIX` (preferably by
+  linking `trdp::trdp`) so `vos_sock.h` pulls in `<sys/select.h>`.
