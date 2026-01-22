@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(TRDPStack C)
+project(TRDPStack C CXX)
 
 option(TRDP_BUILD_EXAMPLES "Build TRDP example applications" OFF)
 option(TRDP_BUILD_TESTS "Build TRDP gtest-based tests" OFF)
@@ -76,15 +76,15 @@ set_target_properties(trdp PROPERTIES
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    target_compile_definitions(trdp PRIVATE LINUX)
+    target_compile_definitions(trdp PUBLIC LINUX)
 endif()
 
-target_compile_definitions(trdp PRIVATE POSIX)
+target_compile_definitions(trdp PUBLIC POSIX)
 
 if(TRDP_ENABLE_MD)
-    target_compile_definitions(trdp PRIVATE MD_SUPPORT=1)
+    target_compile_definitions(trdp PUBLIC MD_SUPPORT=1)
 else()
-    target_compile_definitions(trdp PRIVATE MD_SUPPORT=0)
+    target_compile_definitions(trdp PUBLIC MD_SUPPORT=0)
 endif()
 
 if(TRDP_ENABLE_SOA)
@@ -171,7 +171,9 @@ if(TRDP_BUILD_TESTS)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_Declare(
         googletest
-        URL https://github.com/google/googletest/archive/refs/tags/release-1.13.0.zip
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.13.0
+        GIT_SHALLOW TRUE
     )
     FetchContent_MakeAvailable(googletest)
 
