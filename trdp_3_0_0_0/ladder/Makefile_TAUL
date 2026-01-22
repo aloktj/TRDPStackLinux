@@ -57,11 +57,7 @@ MD_SUPPORT=1
 LIBXMLLIB = /usr/lib/libxml2
 LIBXMLINC = /usr/include/libxml2
 
-ifeq ($(MD_SUPPORT),1)
 CFLAGS += -D_GNU_SOURCE -D_DARWIN_C_SOURCE -D_XOPEN_SOURCE=500 -pthread -fPIC -Wall -DMD_SUPPORT=1
-else
-CFLAGS += -D_GNU_SOURCE -D_DARWIN_C_SOURCE -D_XOPEN_SOURCE=500 -pthread -fPIC -Wall -DMD_SUPPORT=0
-endif
 
 ifeq ($(TRDP_OPTION_LADDER),1)
 CFLAGS += -DTRDP_OPTION_LADDER -DCLOCK_MONOTONIC
@@ -100,10 +96,7 @@ VOS_OBJS = vos_utils.o vos_sock.o vos_mem.o vos_thread.o vos_shared_mem.o
 TRDP_OBJS = trdp_pdcom.o trdp_utils.o trdp_if.o trdp_stats.o tau_marshall.o tau_xml.o $(VOS_OBJS)
 #TRDP_OBJS = trdp_pdcom.o trdp_utils.o trdp_if.o trdp_stats.o tau_marshall.o $(VOS_OBJS)
 LADDER_OBJS = tau_pdcom_ladder.o tau_ladder.o tau_ldLadder.o $(TRDP_OBJS)
-
-ifeq ($(MD_SUPPORT),1)
 TRDP_OBJS += trdp_mdcom.o
-endif
 
 #all:		outdir libtrdp demo
 #all:		outdir libtrdp libladder example laddertest
@@ -334,7 +327,6 @@ help:
 	@echo "Edit the paths in the top part of this Makefile to suit your environment." >&2
 	@echo "Then call 'make' or 'make all' to build everything." >&2
 	@echo "To build debug binaries, append 'DEBUG=TRUE' to the make command " >&2
-	@echo "To include message data support, append 'MD_SUPPORT=1' to the make command " >&2
 	@echo " " >&2
 	@echo "Other builds:" >&2
 	@echo "  * make demo      - build the sample applications" >&2

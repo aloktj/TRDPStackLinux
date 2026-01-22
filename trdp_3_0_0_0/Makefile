@@ -100,15 +100,10 @@ LINT_OBJECTS = trdp_stats.lob\
 # Set LDFLAGS
 LDFLAGS += -L $(OUTDIR)
 
-# Enable / disable MD Support
-# by default MD_SUPPORT is always enabled (in current state)
-ifeq ($(MD_SUPPORT),0)
-	CFLAGS += -DMD_SUPPORT=0
-else
-	TRDP_OBJS += trdp_mdcom.o
-	TRDP_OBJS += tlm_if.o
-	CFLAGS += -DMD_SUPPORT=1
-endif
+# Enable MD Support (always on)
+TRDP_OBJS += trdp_mdcom.o
+TRDP_OBJS += tlm_if.o
+CFLAGS += -DMD_SUPPORT=1
 
 ifeq ($(DEBUG), TRUE)
 	OUTDIR = bld/output/$(ARCH)-dbg
@@ -645,7 +640,6 @@ help:
 	@$(ECHO) "Then call 'make' or 'make all' to build everything. Contents of target all marked below" >&2
 	@$(ECHO) "in the 'Other builds:' list with #" >&2
 	@$(ECHO) "To build debug binaries, append 'DEBUG=TRUE' to the make command " >&2
-	@$(ECHO) "To exclude message data support, append 'MD_SUPPORT=0' to the make command " >&2
 	@$(ECHO) "To include realtime scheduling support, append 'RT_THREADS=1' to the make command " >&2
 	@$(ECHO) " " >&2
 	@$(ECHO) "Other builds:" >&2
