@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(TRDPStack C CXX)
+project(TRDPStack VERSION 3.0.0.0 LANGUAGES C CXX)
 
 option(TRDP_BUILD_EXAMPLES "Build TRDP example applications" OFF)
 option(TRDP_BUILD_TESTS "Build TRDP gtest-based tests" OFF)
@@ -116,6 +116,8 @@ target_include_directories(trdp
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/api>"
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/vos/api>"
+        "$<INSTALL_INTERFACE:include/trdp>"
+        "$<INSTALL_INTERFACE:include/trdp/vos>"
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/src/common"
         "${CMAKE_CURRENT_LIST_DIR}/src/vos/common"
@@ -180,3 +182,64 @@ if(TRDP_BUILD_TESTS)
     target_link_libraries(trdp_api_gtest PRIVATE trdp GTest::gtest_main)
     add_test(NAME trdp_api_gtest COMMAND trdp_api_gtest)
 endif()
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+install(
+    TARGETS trdp
+    EXPORT TRDPStackTargets
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/trdp"
+)
+
+install(
+    DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/src/api/"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/trdp"
+    FILES_MATCHING PATTERN "*.h" PATTERN "*.xsd"
+)
+
+install(
+    DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/src/vos/api/"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/trdp/vos"
+    FILES_MATCHING PATTERN "*.h"
+)
+
+set(TRDP_INSTALL_CONFIGDIR "${CMAKE_INSTALL_LIBDIR}/cmake/TRDPStack")
+
+install(
+    EXPORT TRDPStackTargets
+    FILE TRDPStackTargets.cmake
+    NAMESPACE trdp::
+    DESTINATION "${TRDP_INSTALL_CONFIGDIR}"
+)
+
+configure_package_config_file(
+    "${CMAKE_CURRENT_LIST_DIR}/cmake/TRDPStackConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/TRDPStackConfig.cmake"
+    INSTALL_DESTINATION "${TRDP_INSTALL_CONFIGDIR}"
+)
+
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/TRDPStackConfigVersion.cmake"
+    VERSION "${PROJECT_VERSION}"
+    COMPATIBILITY SameMajorVersion
+)
+
+install(
+    FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/TRDPStackConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/TRDPStackConfigVersion.cmake"
+    DESTINATION "${TRDP_INSTALL_CONFIGDIR}"
+)
+
+set(CPACK_PACKAGE_NAME "trdp-stack")
+set(CPACK_PACKAGE_VENDOR "TRDPStack")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TRDP stack libraries")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "TRDPStack Maintainers")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+include(CPack)
